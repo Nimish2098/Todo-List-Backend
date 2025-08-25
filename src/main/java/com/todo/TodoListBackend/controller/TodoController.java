@@ -41,7 +41,7 @@ public class TodoController {
     @Autowired
     private TodoRepository todoRepository;
 
-    @GetMapping
+    @GetMapping("/api/todos")
     public List<Todo> getAllTasks() {
         return todoRepository.findAll();
     }
@@ -51,11 +51,18 @@ public class TodoController {
         return todoRepository.save(task);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/api/{id}")
     public Todo updateTask(@PathVariable Long id, @RequestBody Todo todoDetails) {
        Todo task = todoRepository.findById(id).orElseThrow(() -> new RuntimeException("Task not found"));
-        task.setTask(todoDetails.getTask());
-        task.setCompleted(task.isCompleted());
+
+        task.setCompleted(todoDetails.isCompleted());
         return todoRepository.save(task);
+    }
+
+    @DeleteMapping("/api/todos/{id}")
+    public void deleteTask(@PathVariable Long id){
+        Todo task = todoRepository.findById(id)
+                .orElseThrow(()->new RuntimeException(("Not Found")));
+        todoRepository.delete(task);
     }
 }

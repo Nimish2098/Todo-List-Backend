@@ -9,4 +9,15 @@ import java.util.Optional;
 
 public interface TodoRepository extends JpaRepository<Todo,Long> {
 
+    @Override
+    List<Todo> findAll(Sort sort);
+
+    @Override
+    <S extends Todo> S save(S entity);
+
+    @Override
+    Optional<Todo> findById(Long aLong);
+
+    @Override
+    void deleteById(Long aLong);
 }
