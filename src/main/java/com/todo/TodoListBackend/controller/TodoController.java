@@ -45,6 +45,7 @@ public class TodoController {
 
     @GetMapping("/api/todos")
     public List<Todo> getAllTasks() {
+
         return todoRepository.findAll();
     }
 
