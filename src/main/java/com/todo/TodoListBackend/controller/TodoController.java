@@ -4,6 +4,7 @@ package com.todo.TodoListBackend.controller;
 import com.todo.TodoListBackend.model.Todo;
 import com.todo.TodoListBackend.repository.TodoRepository;
 import com.todo.TodoListBackend.service.TodoService;
+import com.todo.TodoListBackend.service.TodoServiceImp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/todos")
 public class TodoController {
 
 //    @Autowired
@@ -41,32 +43,29 @@ public class TodoController {
 //        return "Deleted Successfully";
 //    }
     @Autowired
-    private TodoRepository todoRepository;
+    private TodoServiceImp todoServiceImp;
 
-    @GetMapping("/api/todos")
+    @GetMapping
     public List<Todo> getAllTasks() {
 
-        return todoRepository.findAll();
+        return todoServiceImp.getAllTodos();
     }
 
-    @PostMapping("/api/todos")
+    @PostMapping
     public ResponseEntity<Todo> createTask(@RequestBody Todo task) {
-        Todo newTodo = todoRepository.save(task);
-        return new ResponseEntity<Todo>(newTodo, HttpStatus.OK);
+        Todo newTodo = todoServiceImp.createTodo(task);
+        return new ResponseEntity<Todo>(newTodo, HttpStatus.CREATED);
     }
 
-    @PutMapping("/api/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<Todo> updateTask(@PathVariable Long id, @RequestBody Todo todoDetails) {
-       Todo task = todoRepository.findById(id).orElseThrow(() -> new RuntimeException("Task not found"));
-
-        task.setCompleted(todoDetails.isCompleted());
-        return new ResponseEntity<>(HttpStatus.OK);
+       Todo task = todoServiceImp.updateTodo(id,todoDetails);
+        return new ResponseEntity<>(task,HttpStatus.OK);
     }
 
-    @DeleteMapping("/api/todos/{id}")
-    public void deleteTask(@PathVariable Long id){
-        Todo task = todoRepository.findById(id)
-                .orElseThrow(()->new RuntimeException(("Not Found")));
-        todoRepository.delete(task);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTask(@PathVariable Long id){
+        todoServiceImp.deleteTodo(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

@@ -1,10 +1,14 @@
 package com.todo.TodoListBackend.service;
 
 import com.todo.TodoListBackend.model.Todo;
+import com.todo.TodoListBackend.repository.TodoRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
@@ -16,45 +20,44 @@ import java.util.PriorityQueue;
 @Service
 public class TodoServiceImp implements  TodoService{
 
-    private List<Todo> todoList = new ArrayList<>();
-    private Long todoId = 1L;
-    public TodoServiceImp() {
-        super();
-    }
+    @Autowired
+    private TodoRepository todoRepository;
 
     @Override
     public List<Todo> getAllTodos() {
-        return todoList;
+        return todoRepository.findAll();
     }
 
     @Override
-    public String createTodo(Todo todo) {
-        todo.setId(todoId++);
-
-        todoList.add(todo);
-        return "Task Addded Succesfully";
+    public Todo createTodo(Todo todo) {
+        return todoRepository.save(todo);
     }
 
     @Override
-    public String deleteTodo(Long id) {
-        Todo todo = todoList.stream().filter(c ->c.getId().equals(id)).findFirst()
-                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
-
-        todoList.remove(todo);
-        return "Deleted Successfully";
+    public void deleteTodo(Long id) {
+       if(todoRepository.existsById(id)){
+           todoRepository.deleteById(id);
+       }
+       else{
+           throw new RuntimeException("Todo not found with id: "+id);
+       }
     }
 
     @Override
-    public String updateTodo(Long id, Todo todo) {
-        Optional<Todo>savedTodo = todoList.stream().filter(c->c.getId().equals(id)).findFirst();
+    public Todo updateTodo(Long id, Todo todo) {
+        Optional<Todo> savedTodo = todoRepository.findById(id);
+
         if(savedTodo.isPresent()){
             Todo existingTodo = savedTodo.get();
             existingTodo.setCompleted(todo.isCompleted());
-            return "Updated Succesfully";
+            existingTodo.setTitle(todo.getTitle());
+            return todoRepository.save(existingTodo);
         }
         else{
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Category not found");
+            throw new RuntimeException("Todo not found with id:"+id);
         }
-
     }
+
+
+
 }
