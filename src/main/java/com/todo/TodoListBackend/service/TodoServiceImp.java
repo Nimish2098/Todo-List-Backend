@@ -1,6 +1,7 @@
 package com.todo.TodoListBackend.service;
 
 import com.todo.TodoListBackend.model.Todo;
+import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -9,7 +10,9 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.PriorityQueue;
 
+@Transactional
 @Service
 public class TodoServiceImp implements  TodoService{
 
@@ -27,7 +30,7 @@ public class TodoServiceImp implements  TodoService{
     @Override
     public String createTodo(Todo todo) {
         todo.setId(todoId++);
-        
+
         todoList.add(todo);
         return "Task Addded Succesfully";
     }

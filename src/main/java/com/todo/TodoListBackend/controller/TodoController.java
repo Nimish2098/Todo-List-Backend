@@ -5,6 +5,8 @@ import com.todo.TodoListBackend.model.Todo;
 import com.todo.TodoListBackend.repository.TodoRepository;
 import com.todo.TodoListBackend.service.TodoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.config.Task;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,16 +49,17 @@ public class TodoController {
     }
 
     @PostMapping("/api/todos")
-    public Todo createTask(@RequestBody Todo task) {
-        return todoRepository.save(task);
+    public ResponseEntity<Todo> createTask(@RequestBody Todo task) {
+        Todo newTodo = todoRepository.save(task);
+        return new ResponseEntity<Todo>(newTodo, HttpStatus.OK);
     }
 
     @PutMapping("/api/{id}")
-    public Todo updateTask(@PathVariable Long id, @RequestBody Todo todoDetails) {
+    public ResponseEntity<Todo> updateTask(@PathVariable Long id, @RequestBody Todo todoDetails) {
        Todo task = todoRepository.findById(id).orElseThrow(() -> new RuntimeException("Task not found"));
 
         task.setCompleted(todoDetails.isCompleted());
-        return todoRepository.save(task);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping("/api/todos/{id}")
